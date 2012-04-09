@@ -15,12 +15,14 @@ start a clojure command line:
 
 issue the following commands:
 
->(use 'org.jclouds.compute2)
->(import 'org.jclouds.openstack.devstack.Devstack)
->(def compute (compute-service "virtualbox" "" "" :sshj :slf4j))
->(create-nodes compute "devstack" 1 (build-template compute { :run-script (Devstack/inVm) } ))
+>(use 'org.jclouds.compute2)   
+>(import 'org.jclouds.openstack.devstack.Devstack)   
+>(def compute (compute-service "virtualbox" "" "" :sshj :slf4j))   
+>(create-nodes compute "devstack" 1 (build-template compute { :run-script (Devstack/inVm) } ))   
 
-Devstack dashboard will be available at: http://new_node_ip, and is accessible with the credentials admin/password
+Devstack dashboard will be available at: http://new_node_ip, and is accessible with the credentials admin/password.
+
+The vm will be acessible by ssh toor@new_node_ip with the password 'password' 
 
 #Note
 
