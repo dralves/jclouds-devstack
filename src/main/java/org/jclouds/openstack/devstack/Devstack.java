@@ -21,12 +21,20 @@ package org.jclouds.openstack.devstack;
 
 import org.jclouds.scriptbuilder.domain.OsFamily;
 import org.jclouds.scriptbuilder.domain.Statement;
+import org.jclouds.scriptbuilder.statements.login.AdminAccess;
 
 import com.google.common.collect.ImmutableSet;
 
+/**
+ * All-in-one script that installs Devstack on a vm through jclouds-virtualbox. In order to pass a single script to
+ * TemplateOptions, this script also executes {@link AdminAccess}.
+ * 
+ * @author David Alves
+ * 
+ */
 public class Devstack implements Statement {
 
-  public static Devstack inVm() {
+  public static Statement inVm() {
     return new Devstack();
   }
 

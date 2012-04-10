@@ -1,7 +1,7 @@
 
 #Setup
 
-Have clouds virtualbox working. see: https://github.com/jclouds/jclouds/tree/master/labs/virtualbox
+Have jclouds virtualbox working. see: https://github.com/jclouds/jclouds/tree/master/labs/virtualbox
 
 That's it! 
 
