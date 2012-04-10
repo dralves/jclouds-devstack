@@ -68,7 +68,7 @@
     <appender-ref ref="SSHFILE" />
   </logger>
 
-  <logger name="net.schmizz.sshj">
+  <logger name="net.schmizz">
     <level value="ERROR" />
     <appender-ref ref="CONSOLE" />
   </logger>
