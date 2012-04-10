@@ -19,6 +19,10 @@
 
 package org.jclouds.openstack.devstack;
 
+import static com.google.common.base.Preconditions.checkState;
+
+import java.util.concurrent.TimeUnit;
+
 import javax.annotation.Resource;
 import javax.inject.Named;
 
@@ -26,6 +30,7 @@ import org.jclouds.compute.ComputeService;
 import org.jclouds.compute.ComputeServiceContext;
 import org.jclouds.compute.RunNodesException;
 import org.jclouds.compute.domain.NodeMetadata;
+import org.jclouds.compute.options.RunScriptOptions;
 import org.jclouds.compute.reference.ComputeServiceConstants;
 import org.jclouds.logging.Logger;
 import org.jclouds.scriptbuilder.statements.login.AdminAccess;
@@ -62,9 +67,13 @@ public class CreateDevstackNode implements Function<ComputeServiceContext, NodeM
     original.runScriptOnNode(devstackNode.getId(), AdminAccess.standard());
     String address = Iterables.getFirst(devstackNode.getPublicAddresses(), null);
     logger.info("Running devstack script on node: [id= " + devstackNode.getId() + " address= " + address + "]");
-    original.runScriptOnNode(devstackNode.getId(), Devstack.inVm());
-    logger.info("Devstack installed. Dashboard: http://%s Ssh: ssh me@%s", address, address);
-
+    try {
+      checkState(original.submitScriptOnNode(devstackNode.getId(), Devstack.inVm(), RunScriptOptions.NONE)
+          .get(20, TimeUnit.MINUTES).getExitStatus() == 0);
+    } catch (Exception e) {
+      throw Throwables.propagate(e);
+    }
+    logger.info("Devstack installed. Dashboard available at: http://%s Ssh available at: ssh me@%s", address, address);
     return devstackNode;
 
   }

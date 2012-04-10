@@ -1,6 +1,5 @@
 package org.jclouds.openstack.devstack;
 
-import static org.jclouds.compute.config.ComputeServiceProperties.TIMEOUT_NODE_RUNNING;
 import static org.jclouds.compute.config.ComputeServiceProperties.TIMEOUT_SCRIPT_COMPLETE;
 
 import java.util.Properties;
@@ -24,10 +23,10 @@ public class CreateDevstackNodeLiveTest {
   protected ComputeServiceContext context;
   protected NodeMetadata          devstackNode;
 
-  @BeforeGroups
+  @BeforeGroups(groups = "live")
   public void setUp() {
+    // props.setProperty(TIMEOUT_NODE_RUNNING, "2400000");
     Properties props = new Properties();
-    props.setProperty(TIMEOUT_NODE_RUNNING, "2400000");
     props.setProperty(TIMEOUT_SCRIPT_COMPLETE, "2400000");
     context = new ComputeServiceContextFactory().createContext("virtualbox", "", "",
         ImmutableSet.<Module> of(new SLF4JLoggingModule(), new SshjSshClientModule()), props);
@@ -35,7 +34,7 @@ public class CreateDevstackNodeLiveTest {
     devstackNode = createDevstackNode.apply(context);
   }
 
-  @AfterGroups
+  @AfterGroups(groups = "live")
   public void tearDown() {
     context.getComputeService().destroyNodesMatching(new Predicate<NodeMetadata>() {
 

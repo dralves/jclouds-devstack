@@ -24,15 +24,14 @@ import static junit.framework.Assert.assertTrue;
 import org.jclouds.compute.ComputeServiceContext;
 import org.testng.annotations.Test;
 
-@Test(groups = { "live" })
 public class DevstackToOpenstackLiveTest extends CreateDevstackNodeLiveTest {
 
+  @Test(groups = { "live" })
   public void transformComputeServiceContext() {
     DevstackToOpenstack devstackToOpenstack = new DevstackToOpenstack();
     ComputeServiceContext openstackContext = devstackToOpenstack.apply(devstackNode);
     // test the service by listing images
     assertTrue(openstackContext.getComputeService().listImages().size() != 0);
-
   }
 
 }
