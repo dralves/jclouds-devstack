@@ -1,82 +1,72 @@
+/**
+ * Licensed to jclouds, Inc. (jclouds) under one or more
+ * contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  jclouds licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package org.jclouds.openstack.devstack;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static org.jclouds.compute.config.ComputeServiceProperties.TIMEOUT_SCRIPT_COMPLETE;
-
-import java.util.Properties;
+import static org.jclouds.openstack.devstack.GenericComputeServiceContextToOpenstackComputeServiceContext.getDevstackNode;
 
 import org.jclouds.compute.ComputeServiceContext;
-import org.jclouds.compute.ComputeServiceContextFactory;
-import org.jclouds.compute.domain.ComputeMetadata;
 import org.jclouds.compute.domain.NodeMetadata;
 import org.jclouds.compute.predicates.RetryIfSocketNotYetOpen;
-import org.jclouds.logging.slf4j.config.SLF4JLoggingModule;
 import org.jclouds.net.IPSocket;
-import org.jclouds.sshj.config.SshjSshClientModule;
-import org.testng.annotations.AfterGroups;
-import org.testng.annotations.BeforeGroups;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.google.common.base.Predicate;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
-import com.google.inject.Module;
 
-@Test(groups = { "live" })
 public class CreateDevstackNodeLiveTest {
 
-  public static final String      SKIP_CREATE  = "jclouds.devstack.skip-create";
   public static final String      SKIP_DESTROY = "jclouds.devstack.skip-destroy";
-
-  protected ComputeServiceContext context;
-  protected boolean               skipCreate;
+  protected ComputeServiceContext vboxContext;
+  protected ComputeServiceContext openstackContext;
   private boolean                 skipDestroy;
 
-  @BeforeGroups(groups = "live")
+  @BeforeClass
   public void setUp() {
-    this.skipCreate = System.getProperty(SKIP_CREATE) != null;
-    this.skipDestroy = System.getProperty(SKIP_DESTROY) != null;
-    Properties props = new Properties();
-    props.setProperty(TIMEOUT_SCRIPT_COMPLETE, "2400000");
-    context = new ComputeServiceContextFactory().createContext("virtualbox", "", "",
-        ImmutableSet.<Module> of(new SLF4JLoggingModule(), new SshjSshClientModule()), props);
-    if (!skipCreate) {
-      CreateDevstackNode createDevstackNode = new CreateDevstackNode();
-      createDevstackNode.apply(context);
-    }
+    this.skipDestroy = true; // System.getProperty(SKIP_DESTROY) != null;
+    DevstackVBoxSupplier supplier = new DevstackVBoxSupplier();
+    this.vboxContext = supplier.getVBoxContext();
+    this.openstackContext = supplier.get();
   }
 
-  @AfterGroups(groups = "live")
+  @AfterClass
   public void tearDown() {
     if (!skipDestroy) {
-      context.getComputeService().destroyNodesMatching(new Predicate<NodeMetadata>() {
-
+      vboxContext.getComputeService().destroyNodesMatching(new Predicate<NodeMetadata>() {
         @Override
         public boolean apply(NodeMetadata input) {
           return input.getGroup().equals("devstack");
         }
       });
-      context.close();
+      vboxContext.close();
     }
   }
 
-  public NodeMetadata getDevstackNode() {
-    return Iterables.getOnlyElement(context.getComputeService().listNodesDetailsMatching(
-        new Predicate<ComputeMetadata>() {
-
-          @Override
-          public boolean apply(ComputeMetadata input) {
-            checkArgument(input instanceof NodeMetadata);
-            return ((NodeMetadata) input).getGroup().equals("devstack");
-          }
-        }));
-  }
-
+  @Test(groups = { "live" })
   public void testDevstackIsAvailable() {
-    // for now we just test that the something is available where the dashboard should be
-    // TODO test specifically that the openstack dashboard is present at the address.
-    Predicate<IPSocket> socketTester = context.getUtils().getInjector().getInstance(RetryIfSocketNotYetOpen.class);
-    socketTester.apply(new IPSocket(Iterables.getFirst(getDevstackNode().getPublicAddresses(), null), 80));
+    Predicate<IPSocket> socketTester = vboxContext.getUtils().getInjector().getInstance(RetryIfSocketNotYetOpen.class);
+    // dashboard is available
+    socketTester.apply(new IPSocket(Iterables.getFirst(getDevstackNode(vboxContext).getPublicAddresses(), null), 80));
+    // api is available
+    socketTester.apply(new IPSocket(Iterables.getFirst(getDevstackNode(vboxContext).getPublicAddresses(), null), 5000));
   }
 
 }
