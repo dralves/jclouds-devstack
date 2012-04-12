@@ -1,30 +1,20 @@
+*Rationale* - sometimes it is useful, for testing purposes or otherwise, to have the ability of "transforming" a cloud into another one. 
+Possible use cases are running openstack tests on ec2 or trying eucalyptus on virtualbox.  
 
-#Setup
+#Usage
 
-Have jclouds virtualbox working. see: https://github.com/jclouds/jclouds/tree/master/labs/virtualbox
+Example booting Devstack on a virtualbox vm:
 
-That's it! 
-
---------------
-
-#Booting devstack in a VM
-
-start a clojure command line:
-
-> mvn clean install clojure:repl 
-
-issue the following commands:
-
->(use 'org.jclouds.compute2)   
->(import 'org.jclouds.openstack.devstack.Devstack)   
->(def compute (compute-service "virtualbox" "" "" :sshj :slf4j))   
->(create-nodes compute "devstack" 1 (build-template compute { :run-script (Devstack/inVm) } ))   
+>// build a vbox context that includes the CloudTransformers module (any other context that includes this module can be used)
+>ComputeServiceContext vboxContext = new VBoxSupplier().get();
+>
+>CloutTransformer transformer = CloudTransformers.transformerFor(vboxContext,"openstack-nova");
+>
+>// get the new cloud
+>ComputServiceContext novaContext = transformer.apply(vboxContext);
+>
+>// even simpler
+>ComputServiceContext novaContext = CloudTransformers.transform(vboxContext,"openstack-nova");
 
 Devstack dashboard will be available at: http://new_node_ip, and is accessible with the credentials admin/password.
-
 The vm will be acessible by ssh toor@new_node_ip with the password 'password' 
-
-#Note
-
-Due to the fact that that addresses are assigned by DHCP there is currently no way to find out exactly which address is assigned to the vm running devstack. 
-This will be solved sortly but, typically, it will be one of the first ips of the assigned network.

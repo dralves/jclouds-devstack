@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.jclouds.openstack.devstack;
+package org.jclouds.cloudtransformer.openstack;
 
 import java.util.Properties;
 

@@ -17,34 +17,26 @@
  * under the License.
  */
 
-package org.jclouds.openstack.devstack;
-
-import static org.jclouds.openstack.devstack.GenericComputeServiceContextToOpenstackComputeServiceContext.getDevstackNode;
+package org.jclouds.cloudtransformer.openstack;
 
 import org.jclouds.compute.ComputeServiceContext;
 import org.jclouds.compute.domain.NodeMetadata;
-import org.jclouds.compute.predicates.RetryIfSocketNotYetOpen;
-import org.jclouds.net.IPSocket;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
 
 import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
 
 public class CreateDevstackNodeLiveTest {
 
   public static final String      SKIP_DESTROY = "jclouds.devstack.skip-destroy";
   protected ComputeServiceContext vboxContext;
-  protected ComputeServiceContext openstackContext;
   private boolean                 skipDestroy;
 
   @BeforeClass
   public void setUp() {
-    this.skipDestroy = true; // System.getProperty(SKIP_DESTROY) != null;
-    DevstackVBoxSupplier supplier = new DevstackVBoxSupplier();
-    this.vboxContext = supplier.getVBoxContext();
-    this.openstackContext = supplier.get();
+    this.skipDestroy = System.getProperty(SKIP_DESTROY) != null;
+    VBoxSupplier supplier = new VBoxSupplier();
+    this.vboxContext = supplier.get();
   }
 
   @AfterClass
@@ -58,15 +50,6 @@ public class CreateDevstackNodeLiveTest {
       });
       vboxContext.close();
     }
-  }
-
-  @Test(groups = { "live" })
-  public void testDevstackIsAvailable() {
-    Predicate<IPSocket> socketTester = vboxContext.getUtils().getInjector().getInstance(RetryIfSocketNotYetOpen.class);
-    // dashboard is available
-    socketTester.apply(new IPSocket(Iterables.getFirst(getDevstackNode(vboxContext).getPublicAddresses(), null), 80));
-    // api is available
-    socketTester.apply(new IPSocket(Iterables.getFirst(getDevstackNode(vboxContext).getPublicAddresses(), null), 5000));
   }
 
 }

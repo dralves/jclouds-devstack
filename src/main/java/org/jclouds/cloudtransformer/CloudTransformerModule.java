@@ -17,21 +17,21 @@
  * under the License.
  */
 
-package org.jclouds.openstack.devstack;
+package org.jclouds.cloudtransformer;
 
-import static junit.framework.Assert.assertTrue;
+import org.jclouds.cloudtransformer.openstack.CreateDevstackNode;
+import org.jclouds.cloudtransformer.openstack.GenericComputeServiceContextToOpenstackComputeServiceContext;
 
-import org.jclouds.compute.ComputeServiceContext;
-import org.testng.annotations.Test;
+import com.google.inject.AbstractModule;
+import com.google.inject.multibindings.MapBinder;
 
-public class GenericComputeServiceContextToOpenstackComputeServiceContextLiveTest extends CreateDevstackNodeLiveTest {
+public class CloudTransformerModule extends AbstractModule {
 
-  @Test(groups = { "live" })
-  public void transformComputeServiceContext() {
-    ComputeServiceContext openstackContext = new GenericComputeServiceContextToOpenstackComputeServiceContext()
-        .apply(vboxContext);
-    // test the service by listing images
-    assertTrue(openstackContext.getComputeService().listImages().size() != 0);
+  @Override
+  protected void configure() {
+    MapBinder<String, CloudTransformer> mapbinder = MapBinder.newMapBinder(binder(), String.class,
+        CloudTransformer.class);
+    mapbinder.addBinding("openstack-nova").to(GenericComputeServiceContextToOpenstackComputeServiceContext.class);
+    bind(CreateDevstackNode.class);
   }
-
 }

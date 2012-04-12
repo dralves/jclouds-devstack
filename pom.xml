@@ -29,7 +29,7 @@
     <version>1.5.0-SNAPSHOT</version>
   </parent>
 
-  <groupId>org.jclouds.examples</groupId>
+  <groupId>org.jclouds.labs</groupId>
   <artifactId>jclouds-devstack</artifactId>
   <name>jclouds-devstack</name>
   <description>jclouds devstack integration (built on vbox for now). launches devstack in a vbox vm</description>
@@ -56,10 +56,21 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
+      <groupId>com.google.inject.extensions</groupId>
+      <artifactId>guice-multibindings</artifactId>
+      <version>3.0</version>
+    </dependency>
+    <dependency>
       <groupId>org.jclouds</groupId>
       <artifactId>jclouds-core</artifactId>
       <version>${project.version}</version>
       <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jclouds.labs</groupId>
+      <artifactId>jclouds-cache</artifactId>
+      <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>

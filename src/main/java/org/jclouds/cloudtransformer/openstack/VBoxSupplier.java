@@ -17,14 +17,13 @@
  * under the License.
  */
 
-package org.jclouds.openstack.devstack;
+package org.jclouds.cloudtransformer.openstack;
 
 import static org.jclouds.compute.config.ComputeServiceProperties.TIMEOUT_SCRIPT_COMPLETE;
 
 import java.util.Properties;
 
-import javax.inject.Singleton;
-
+import org.jclouds.cloudtransformer.CloudTransformerModule;
 import org.jclouds.compute.ComputeServiceContext;
 import org.jclouds.compute.ComputeServiceContextFactory;
 import org.jclouds.logging.slf4j.config.SLF4JLoggingModule;
@@ -35,25 +34,18 @@ import com.google.common.collect.ImmutableSet;
 import com.google.inject.Module;
 
 /**
- * Provides an "openstack" {@link ComputeServiceContext} by booting up a vbox node, installing devstack and setting up
- * the openstack compute service context.
+ * Provides an a vbox computeservice context.
  * 
  * @author David Alves
  * 
  */
 
-@Singleton
-public class DevstackVBoxSupplier implements Supplier<ComputeServiceContext> {
+public class VBoxSupplier implements Supplier<ComputeServiceContext> {
 
   ComputeServiceContext vboxContext;
 
   @Override
   public ComputeServiceContext get() {
-    ComputeServiceContext vboxContext = getOrBuildVBoxContext();
-    return new GenericComputeServiceContextToOpenstackComputeServiceContext().apply(vboxContext);
-  }
-
-  public ComputeServiceContext getVBoxContext() {
     return getOrBuildVBoxContext();
   }
 
@@ -62,7 +54,8 @@ public class DevstackVBoxSupplier implements Supplier<ComputeServiceContext> {
       Properties props = new Properties();
       props.setProperty(TIMEOUT_SCRIPT_COMPLETE, "2400000");
       vboxContext = new ComputeServiceContextFactory().createContext("virtualbox", "", "",
-          ImmutableSet.<Module> of(new SLF4JLoggingModule(), new SshjSshClientModule()), props);
+          ImmutableSet.<Module> of(new SLF4JLoggingModule(), new SshjSshClientModule(), new CloudTransformerModule()),
+          props);
     }
     return vboxContext;
   }

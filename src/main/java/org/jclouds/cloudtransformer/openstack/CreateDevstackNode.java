@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.jclouds.openstack.devstack;
+package org.jclouds.cloudtransformer.openstack;
 
 import static com.google.common.base.Preconditions.checkState;
 
@@ -25,6 +25,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Resource;
 import javax.inject.Named;
+import javax.inject.Singleton;
 
 import org.jclouds.compute.ComputeService;
 import org.jclouds.compute.ComputeServiceContext;
@@ -46,6 +47,7 @@ import com.google.common.collect.Iterables;
  * @author David Alves
  * 
  */
+@Singleton
 public class CreateDevstackNode implements Function<ComputeServiceContext, NodeMetadata> {
 
   @Resource

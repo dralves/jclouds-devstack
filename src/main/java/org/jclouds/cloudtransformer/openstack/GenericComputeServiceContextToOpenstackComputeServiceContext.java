@@ -17,21 +17,23 @@
  * under the License.
  */
 
-package org.jclouds.openstack.devstack;
+package org.jclouds.cloudtransformer.openstack;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
 import java.util.NoSuchElementException;
+import java.util.Set;
 
 import javax.inject.Singleton;
 
+import org.jclouds.cloudtransformer.CloudTransformer;
 import org.jclouds.compute.ComputeService;
 import org.jclouds.compute.ComputeServiceContext;
 import org.jclouds.compute.domain.ComputeMetadata;
 import org.jclouds.compute.domain.NodeMetadata;
 
-import com.google.common.base.Function;
 import com.google.common.base.Predicate;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 
 /**
@@ -42,8 +44,17 @@ import com.google.common.collect.Iterables;
  * 
  */
 @Singleton
-public class GenericComputeServiceContextToOpenstackComputeServiceContext implements
-    Function<ComputeServiceContext, ComputeServiceContext> {
+public class GenericComputeServiceContextToOpenstackComputeServiceContext implements CloudTransformer {
+
+  @Override
+  public Set<String> supportedSourceClouds() {
+    return ImmutableSet.of(ANY_CLOUD);
+  }
+
+  @Override
+  public String targetCloud() {
+    return "openstack-nova";
+  }
 
   @Override
   public ComputeServiceContext apply(ComputeServiceContext input) {
